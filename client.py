@@ -15,7 +15,7 @@ def receive(socket, signal):
 
 
 host = input("Host: ")
-port = input("Port: ")
+port = int(input("Port: "))
 
 try:
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
