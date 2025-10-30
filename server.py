@@ -1,6 +1,8 @@
 import socket
 import threading
 import sys
+import struct
+from utils import *
 
 connections = []
 total_connections = 0
@@ -21,17 +23,24 @@ class Client(threading.Thread):
     def run(self):
         while self.signal:
             try:
-                data = self.socket.recv(32)
-                if data == b"":
+                header = recv_header(self.socket)
+                client_id, packet_number, message_size = struct.unpack("!III", header)
+
+                message_bytes = recv_exact(self.socket, message_size)
+                full_data = header + message_bytes
+
+                if message_size == 0:
                     print("Client " + str(self.address) + " disconnected (empty data)")
                     self.signal = False
                     connections.remove(self)
                     break
-                print("ID " + str(self.id) + ": " + str(data.decode("utf-8")))
+                print(
+                    f"Client_id->{client_id} || Packet->{packet_number} || message_size->{message_size} || message_data = {message_bytes}"
+                )
                 for client in connections:
                     if client.id != self.id:
                         try:
-                            client.socket.sendall(data)
+                            client.socket.sendall(full_data)
                         except Exception as e:
                             print(f"Error sending to client {client.id}: {e}")
             except Exception as e:
