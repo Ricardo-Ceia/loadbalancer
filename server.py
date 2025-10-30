@@ -34,9 +34,16 @@ class Client(threading.Thread):
                     self.signal = False
                     connections.remove(self)
                     break
+
+                header_size = UINT_SIZE * 3
+                packet_total_size = header_size + message_size
+                print(
+                    f"PACKET INFO:packet_size->{packet_total_size} header_size->{header_size}"
+                )
                 print(
                     f"Client_id->{client_id} || Packet->{packet_number} || message_size->{message_size} || message_data = {message_bytes}"
                 )
+
                 for client in connections:
                     if client.id != self.id:
                         try:

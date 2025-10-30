@@ -1,6 +1,9 @@
 import socket
 
-HEADER_SIZE = 4 * 3  # The header is composed of 3 ints (4 bytes each)
+#'Standart Size' of values used on the Header ref:(https://docs.python.org/3/library/struct.html)
+UINT_SIZE = 4
+
+HEADER_SIZE = UINT_SIZE * 3  # The header is composed of 3 ints (4 bytes each)
 
 
 def recv_header(conn) -> bytes:

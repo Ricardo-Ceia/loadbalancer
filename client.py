@@ -16,7 +16,6 @@ class Packet:
         header = struct.pack("!III", client_id, packet_number, message_size)
 
         self.packet_data = header + self.message_data
-        self.packet_size = len(self.packet_data)
 
 
 def receive(socket, signal):
