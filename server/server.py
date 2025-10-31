@@ -2,7 +2,7 @@ import socket
 import threading
 import sys
 import struct
-from utils import *
+from utils.utils import *
 
 connections = []
 total_connections = 0

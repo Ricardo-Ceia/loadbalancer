@@ -1,9 +1,10 @@
 FROM python:3.10.12
 
 WORKDIR /app
-
-COPY server.py utils.py .
+COPY ./utils /app/utils
+COPY ./server /app/server
+ENV PYTHONDONTWRITEBYTECODE=1
 
 EXPOSE 5000
 
-ENTRYPOINT ["python3","server.py"]
+ENTRYPOINT ["python3","-m","server.server"]
