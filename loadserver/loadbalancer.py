@@ -1,8 +1,8 @@
 import socket
 import threading
 import sys
-
-from server.server import total_connections
+import struct
+from utils.utils import *
 
 
 class Client(threading.Thread):
@@ -17,7 +17,53 @@ class Client(threading.Thread):
         return str(self.id) + " " + str(self.address)
 
     def run(self):
-        pass
+        while self.signal:
+            try:
+                header = recv_header_client(self.socket)
+                client_id, packet_number, message_size = struct.unpack("!III", header)
+
+                message_bytes = recv_exact(self.socket, message_size)
+                full_data = header + message_bytes
+
+                if message_size == 0:
+                    print("Client " + str(self.id) + "disconnected (empty data)")
+                    self.signal = False
+                    clients.remove(self)
+                    break
+                header_size = HEADER_SIZE_CLIENT
+                packet_total_size = header_size + message_size
+                print(
+                    print(
+                        f"PACKET INFO:packet_size->{packet_total_size} header_size->{header_size}"
+                    )
+                )
+                print(
+                    f"Client_id->{client_id} || Client_id->{client_id} || Packet->{packet_number} || message_size->{message_size} || message_data = {message_bytes}"
+                )
+
+                server_id = decision(servers)
+
+                if server_id is None:
+                    print("[!] No server available, dropping packet")
+                    continue
+
+                try:
+                    servers[server_id - 1].socket.sendall(full_data)
+                except Exception as e:
+                    print(f"[X] Failed to foward to server {server_id}")
+            except ConnectionError:
+                print(f"[X] Client {self.id} disconnected")
+            except Exception as e:
+                print(f"[X] Client {self.id} error: {e}")
+
+        self.signal = False
+        try:
+            self.socket.close()
+        except:
+            pass
+        if self in clients:
+            clients.remove(self)
+        print(f"[-]Client {self.id} connection closed")
 
 
 class Server(threading.Thread):
@@ -39,7 +85,54 @@ class Server(threading.Thread):
         )
 
     def run(self):
-        pass
+        while self.signal:
+            try:
+                header = recv_header_server(self.socket)
+                server_id, client_id, packet_type, packet_number, message_size = (
+                    struct.unpack("!II?II", header)
+                )
+
+                message_bytes = recv_exact(self.socket, message_size)
+                full_data = header + message_bytes
+
+                if message_size == 0:
+                    print("Server " + str(self.id) + "disconnected (empty data)")
+                    self.signal = False
+                    servers.remove(self)
+                    break
+                header_size = HEADER_SIZE_SERVER
+                packet_total_size = header_size + message_size
+                print(
+                    print(
+                        f"PACKET INFO:packet_size->{packet_total_size} header_size->{header_size}"
+                    )
+                )
+                print(
+                    f"Server_id->{server_id} || Client_id->{client_id} || Packet->{packet_number} || message_size->{message_size} || message_data = {message_bytes}"
+                )
+
+                if 0 <= client_id < len(clients):
+                    try:
+                        clients[client_id - 1].socket.sendall(full_data)
+                    except Exception as e:
+                        print(f"[x] Error sending to client {client_id}")
+                else:
+                    print(f"[X] Invalid client id")
+            except ConnectionError:
+                print(f"[x] Server {self.id} disconnected unexpectedly")
+                break
+            except Exception as e:
+                print(f"[x] Server {self.id} error: {e}")
+                break
+
+        self.signal = False
+        try:
+            self.socket.close()
+        except:
+            pass
+        if self in servers:
+            servers.remove(self)
+        print(f"[-] Server {self.id} connection closed")
 
 
 class RecHealthPacket:
