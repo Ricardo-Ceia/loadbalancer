@@ -2,7 +2,7 @@
 
 docker rm test-server
 
-docker build -t test-server .
+docker build -t test-server -f server/Dockerfile .
 if [ $? -ne 0 ]; then
    exit 1
 fi
