@@ -2,7 +2,7 @@
 
 docker rm test-client
 
-docker build -t test-client ./client
+docker build -t test-client -f client/Dockerfile .
 if [ $? -ne 0 ]; then
     exit 1
 fi

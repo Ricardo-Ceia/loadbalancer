@@ -1,7 +1,7 @@
 FROM python:3.10.12
 
 WORKDIR /app
-COPY ./ /app/client
+COPY client /app/client
 ENV PYTHONDONTWRITEBYTECODE=1
 
 EXPOSE 5000
