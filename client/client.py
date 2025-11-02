@@ -5,7 +5,8 @@ import struct
 
 client_id = 0
 packet_number = 1
-
+LOADBALANCER_PORT = 5001
+LOADBALANCER_ADDRESS = 'localhost'
 
 class Packet:
     def __init__(self, client_id, packet_number, message_size, message_data):
@@ -34,7 +35,7 @@ port = int(input("Port: "))
 
 try:
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((host, port))
+    sock.connect((LOADBALANCER_ADDRESS,LOADBALANCER_PORT))
     client_id += 1
 except:
     print("Could not make connection to the server")
