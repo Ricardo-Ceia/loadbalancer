@@ -23,7 +23,7 @@ class Client(threading.Thread):
     def run(self):
         while self.signal:
             try:
-                header = recv_header(self.socket)
+                header = recv_header_server(self.socket)
                 client_id, packet_number, message_size = struct.unpack("!III", header)
 
                 message_bytes = recv_exact(self.socket, message_size)
