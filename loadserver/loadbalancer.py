@@ -5,6 +5,9 @@ import struct
 from utils.utils import *
 
 
+LOADBALANCER_PORT = 5001
+LOADBALANCER_ADDRESS = 'localhost'
+
 class Client(threading.Thread):
     def __init__(self, socket, address, id, signal):
         threading.Thread.__init__(self)
@@ -182,20 +185,17 @@ def new_server_connection(socket):
 
 def main():
     try:
-        host = input("Host: ")
-        port = int(input("Port: "))
-
         sock_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock_client.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-        print(f"Attempting to bind to {host}:{port}...")
-        sock_client.bind((host, port))
+        print(f"Attempting to bind to {LOADBALANCER_ADDRESS}:{LOADBALANCER_PORT}...")
+        sock_client.bind(LOADBALANCER_PORT, LOADBALANCER_PORT)
         sock_client.listen(5)
-        sock_server.bind((host, port + 1))
+        sock_server.bind((LOADBALANCER_ADDRESS, LOADBALANCER_PORT + 1))
         sock_server.listen(5)
-        print(f"Server successfully listening on {host}:{port}")
+        print(f"Server successfully listening on {LOADBALANCER_ADDRESS}:{LOADBALANCER_PORT}")
         print("Waiting for connections...")
 
         # Create new thread to wait for connections
